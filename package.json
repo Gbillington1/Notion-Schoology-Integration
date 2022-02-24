@@ -1,0 +1,33 @@
+{
+  "name": "notion-schoology-integration",
+  "version": "1.0.0",
+  "description": "Notion integration that uses the SchoologyAPI to pull calendar events into Notion",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gbillington1/notion-schoology-integration.git"
+  },
+  "keywords": [
+    "Notion",
+    "Schoology",
+    "NotionAPI",
+    "Notion",
+    "Integration"
+  ],
+  "author": "Graham Billington",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gbillington1/notion-schoology-integration/issues"
+  },
+  "homepage": "https://github.com/Gbillington1/notion-schoology-integration#readme",
+  "dependencies": {
+    "@notionhq/client": "^0.4.13",
+    "axios": "^0.26.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.0",
+    "oauth-1.0a": "^2.2.6"
+  }
+}
