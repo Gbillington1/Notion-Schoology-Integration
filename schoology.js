@@ -30,16 +30,15 @@ async function getUser(userID) {
     return data;
 }
 
-async function getUserEvents(userID) {
-    // get a date range of 7 days from today
-    const today = util.getISODate("2022-02-07")
-    const nextWeek = util.addDaysToDate(today, 7);
+async function getUserEvents(userID, startDate = util.getISODate(), endDate = util.addDaysToDate(startDate, 7)) {
+
+    startDate = util.getISODate(startDate);
 
     // get the events for the user that fall in that date range
-    const data = axios.get(`https://api.schoology.com/v1/users/${userID}/events?start_date=${today}&end_date=${nextWeek}&start=0&limit=200`, {
+    const data = axios.get(`https://api.schoology.com/v1/users/${userID}/events?start_date=${startDate}&end_date=${endDate}&start=0&limit=200`, {
         headers: schoologyHeaders
     }).then(res => {
-        return res.data;
+        return res.data.event;
     }).catch(err => {
         console.error(err);
     })
