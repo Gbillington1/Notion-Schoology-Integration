@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gbillington1/notion-schoology-integration.git"
+    "url": "git+https://github.com/Gbillington1/Notion-Schoology-Integration.git"
   },
   "keywords": [
     "Notion",
@@ -20,9 +20,9 @@
   "author": "Graham Billington",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Gbillington1/notion-schoology-integration/issues"
+    "url": "https://github.com/Gbillington1/Notion-Schoology-Integration/issues"
   },
-  "homepage": "https://github.com/Gbillington1/notion-schoology-integration#readme",
+  "homepage": "https://github.com/Gbillington1/Notion-Schoology-Integration#readme",
   "dependencies": {
     "@notionhq/client": "^0.4.13",
     "axios": "^0.26.0",
