@@ -51,6 +51,13 @@ async function createRowInMaster(databaseID, title, database, date, priority, pr
     });
 }
 
+// find section ID's for every course in schoology, pair it with the page ID of the corresponding page in the master DB 
+function getProjectPageID(sectionID) {
+    switch (sectionID) {
+
+    }
+}
+
 module.exports = {
     createRowInMaster
 }
