@@ -8,30 +8,36 @@ const { Event } = require('./Event.js');
 (async () => {
 
     // get events from schoology (7 day range)
-    const sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, "2022-02-7");
+    const sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, "2022-02-07");
+    const notionProjects = await notion.getCourseProjects();
 
-    let events = [];
-    sgyEvents.forEach((event) => {
+    sgyEvents.forEach(async (event) => {
 
         if (event.type === "assignment") {
+
+            // get title of course of the event from /sections/{id}
+            const sgyCourse = await schoology.getCourseSection(event.section_id);
+            const sgyCourseTitle = sgyCourse.course_title.replace(/\s+/g, '-');
+
+            // find projectID of course that matches the schoology event course
+            const projectPage = notionProjects.find(project => project.url.includes(sgyCourseTitle));
+
+            // create a new event object
             let notionEvent = new Event(
                 event.id,
                 event.title,
                 "Tasks",
                 event.start.split(" ")[0],
                 "Medium",
-                1234,
+                projectPage.id, 
                 "To Do"
             );
-            events.push(notionEvent);
+
+            // add event to new row in the master DB
+            await notion.createRowInMaster(notionEvent)
+
         }
 
     })
-
-    console.log(events)
-
-    // const databaseID = process.env.NOTION_DATABASE_ID;
-
-    // create a row in the master database
-    // await notion.createRowInMaster(databaseID, "Big important deadline", "Tasks", util.getISODate(), "High", "5648a1520bf949e2a6ace594f134f796", "In Progress");
+    
 })()
