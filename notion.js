@@ -5,46 +5,46 @@ const notion = new Client({
 });
 
 // creates a row in the master database
-async function createRowInMaster(databaseID, title, database, date, priority, projectPageID, status) {
+async function createRowInMaster(event) {
     const response = await notion.pages.create({
-        parent: { database_id: databaseID },
+        parent: { database_id: process.env.NOTION_MASTER_DATABASE_ID },
         properties: {
             Name: {
                 title: [
                     {
                         text: {
-                            content: title,
+                            content: event.title,
                         },
                     },
                 ],
             },
             Database: {
                 select: {
-                    name: database,
+                    name: event.database,
                 },
             },
             Date: {
                 date: {
-                    start: date,
+                    start: event.date,
                 },
             },
             Priority: {
                 multi_select: [
                     {
-                        name: priority,
+                        name: event.priority,
                     }
                 ]
             },
             Project: {
                 relation: [
                     {
-                        id: projectPageID,
+                        id: event.projectPageID,
                     },
                 ],
             },
             Status: {
                 select: {
-                    name: status,
+                    name: event.status,
                 },
             },
         },
@@ -52,12 +52,21 @@ async function createRowInMaster(databaseID, title, database, date, priority, pr
 }
 
 // find section ID's for every course in schoology, pair it with the page ID of the corresponding page in the master DB 
-function getProjectPageID(sectionID) {
-    switch (sectionID) {
-
-    }
+async function getCourseProjects() {
+    // get page IDs from Projects db
+    const response = await notion.databases.query({
+        database_id: process.env.NOTION_PROJECTS_DATABASE_ID,
+        filter: {
+           property: "Tags",
+           multi_select: {
+               contains: "Course",
+           } ,
+        },
+    })
+    return response.results;
 }
 
 module.exports = {
-    createRowInMaster
+    createRowInMaster,
+    getCourseProjects
 }
