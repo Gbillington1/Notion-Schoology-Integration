@@ -2,15 +2,17 @@ const axios = require('axios').default;
 const { v4: uuidv4 } = require('uuid');
 const util = require('./util.js')
 
-const schoologyHeaders = {
-    "Host": "api.schoology.com",
-    "Content-Type": "application/json",
-    "Authorization": `OAuth realm="Schoology API", oauth_consumer_key="${process.env.SCHOOLOGY_CONSUMER_KEY}", oauth_token="", oauth_nonce="${uuidv4()}", oauth_timestamp="${Math.floor(Date.now() / 1000).toString()}", oauth_signature_method="PLAINTEXT", oauth_version="1.0", oauth_signature="${process.env.SCHOOLOGY_CONSUMER_SECRET}%26"`,
+function getHeaders() {
+    return {
+        "Host": "api.schoology.com",
+        "Content-Type": "application/json",
+        "Authorization": `OAuth realm="Schoology API", oauth_consumer_key="${process.env.SCHOOLOGY_CONSUMER_KEY}", oauth_token="", oauth_nonce="${uuidv4()}", oauth_timestamp="${Math.floor(Date.now() / 1000).toString()}", oauth_signature_method="PLAINTEXT", oauth_version="1.0", oauth_signature="${process.env.SCHOOLOGY_CONSUMER_SECRET}%26"`,
+    }
 }
 
 async function getAllUsers() {
     const data = axios.get(`https://api.schoology.com/v1/users?start=0&limit=200`, {
-        headers: schoologyHeaders
+        headers: getHeaders()
     }).then(res => {
         return res.data.user;
     }).catch(err => {
@@ -21,7 +23,7 @@ async function getAllUsers() {
 
 async function getUser(userID) {
     const data = axios.get(`https://api.schoology.com/v1/users/${userID}`, {
-        headers: schoologyHeaders
+        headers: getHeaders()
     }).then(res => {
         return res.data;
     }).catch(err => {
@@ -36,9 +38,20 @@ async function getUserEvents(userID, startDate = util.getISODate(), endDate = ut
 
     // get the events for the user that fall in that date range
     const data = axios.get(`https://api.schoology.com/v1/users/${userID}/events?start_date=${startDate}&end_date=${endDate}&start=0&limit=200`, {
-        headers: schoologyHeaders
+        headers: getHeaders()
     }).then(res => {
         return res.data.event;
+    }).catch(err => {
+        console.error(err);
+    })
+    return data;
+}
+
+function getCourseSection(sectionID) {
+    const data = axios.get(`https://api.schoology.com/v1/sections/${sectionID}`, {
+        headers: getHeaders()
+    }).then(res => {
+        return res.data;
     }).catch(err => {
         console.error(err);
     })
@@ -48,5 +61,6 @@ async function getUserEvents(userID, startDate = util.getISODate(), endDate = ut
 module.exports = {
     getAllUsers,
     getUser,
-    getUserEvents
+    getUserEvents,
+    getCourseSection
 }
