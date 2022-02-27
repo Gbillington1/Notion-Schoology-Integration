@@ -1,0 +1,41 @@
+name: Raspberry Pi CD
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push events but only for the development branch
+  push: 
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+   # This workflow contains a single job called "update-rpi"
+  update-rpi:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+    - name: Deploy via SSH
+      uses: fifsky/ssh-action@master
+      with:
+        command: |
+          echo ssh successful
+          cd ~/notion-schoology-integration
+          echo starting CI
+          
+          git pull
+          echo pulled latest code to server
+          echo ${{ secrets.PASSWORD }} | sudo -S cp getAssignmentsFromSchoology.sh /usr/bin
+          echo Updated notion/schoology executable on server
+          npm install
+          echo Updated npm packages
+          
+          echo CI completed
+        host: ${{ secrets.HOST }}
+        user: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+     

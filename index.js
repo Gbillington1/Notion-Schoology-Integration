@@ -8,18 +8,20 @@ const { Event } = require('./Event.js');
 (async () => {
 
     // get events from schoology (7 day range)
-    const sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, "2022-02-07");
+    const sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
+
+    // get page objects with the tag "Course"
     const notionProjects = await notion.getCourseProjects();
 
     sgyEvents.forEach(async (event) => {
 
         if (event.type === "assignment") {
 
-            // get title of course of the event from /sections/{id}
+            // get title of course from from /sections/{id}
             const sgyCourse = await schoology.getCourseSection(event.section_id);
             const sgyCourseTitle = sgyCourse.course_title.replace(/\s+/g, '-');
 
-            // find projectID of course that matches the schoology event course
+            // find page in notion that matches the schoology event course
             const projectPage = notionProjects.find(project => project.url.includes(sgyCourseTitle));
 
             // create a new event object
@@ -39,5 +41,5 @@ const { Event } = require('./Event.js');
         }
 
     })
-    
+
 })()
