@@ -1,4 +1,9 @@
-require('dotenv').config();
+if (process.env.NODE_ENV === "production") {
+    require('dotenv').config({path: '/home/graham/notion-schoology-integration/.env'});
+} else {
+    require('dotenv').config({path: './.env'});
+}
+
 const { v4: uuidv4 } = require('uuid');
 const schoology = require('./schoology.js');
 const notion = require('./notion.js');
