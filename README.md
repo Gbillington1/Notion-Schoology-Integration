@@ -1,5 +1,5 @@
 # Schoology Events x Notion Integration
-A NodeJS project that uses the [Schoology API](https://developers.schoology.com/api) and the [Notion API](https://developers.notion.com/) to get user events from Schoology and import them into a Notion database.
+A NodeJS project that uses the [Schoology API](https://developers.schoology.com/api) and the [Notion API](https://developers.notion.com/) to get user assignments from Schoology and import them into a Notion database.
 
 ## Summary
 Currently imports data into a Notion database with the following schema: 
