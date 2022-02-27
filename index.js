@@ -38,6 +38,8 @@ const { Event } = require('./Event.js');
             // add event to new row in the master DB
             await notion.createRowInMaster(notionEvent)
 
+            console.log("Successfully added event to Notion: " + notionEvent.title);
+
         }
 
     })
