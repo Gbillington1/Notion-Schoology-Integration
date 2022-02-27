@@ -25,13 +25,30 @@ const { Event } = require('./Event.js');
     sgyEvents.filter((event) => {
         return event.type === "assignment";
     }).forEach(async (event) => {
-
+        
         // check if event is already in the notion database
-        const duplicateEntry = notionTasksAndDeadlines.find(task => task.properties.Name.title[0]. plain_text === event.title)
+        const duplicateEntry = notionTasksAndDeadlines.find(task => {
+            return (task.properties.Name.title[0].plain_text === event.title && task.properties.Date.date.start == event.start.split(" ")[0])
+        })
+
+        // handle duplicate entries
+        // TODO: abstract this in a clean way, figure out the best way to skip and update tasks
+        // notionTasksAndDeadlines.filter((task) => {
+        //     return task.properties.Name.title[0].plain_text === event.title
+        // }).forEach(async (task) => {
+        //     const taskStartDate = task.properties.Date.date.start
+        //     const eventDate = event.start.split(" ")[0]
+
+        //     if (taskStartDate == eventDate) {
+        //         // duplicate, skip
+        //     } else if (taskStartDate != eventDate) {
+        //         // update date of task in notion using event.id
+        //     }
+        // });
 
         // skip duplicates 
         if (duplicateEntry) {
-            console.log(`${event.title} already exists in the Notion database. Skipping creation.`);
+            console.log(`Skipped creation, entry already exists: ${event.title}`);
             return
         }
 
@@ -46,7 +63,7 @@ const { Event } = require('./Event.js');
         let notionEvent = new Event(
             event.id,
             event.title,
-            "Tasks",
+            "Deadlines",
             event.start.split(" ")[0],
             "Medium",
             projectPage.id,
