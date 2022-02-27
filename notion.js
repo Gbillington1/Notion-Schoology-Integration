@@ -1,4 +1,5 @@
 const { Client } = require('@notionhq/client');
+const util = require("./util.js");
 
 const notion = new Client({
     auth: process.env.NOTION_TOKEN
@@ -57,16 +58,41 @@ async function getCourseProjects() {
     const response = await notion.databases.query({
         database_id: process.env.NOTION_PROJECTS_DATABASE_ID,
         filter: {
-           property: "Tags",
-           multi_select: {
-               contains: "Course",
-           } ,
+            property: "Tags",
+            multi_select: {
+                contains: "Course",
+            },
         },
     })
     return response.results;
 }
 
+// gets tasks and deadlines in the master database that are within a 7 day range by default
+async function getTasksAndDeadlines(startDate = util.getISODate(), endDate = util.addDaysToDate(startDate, 7)) {
+    const response = await notion.databases.query({
+        database_id: process.env.NOTION_MASTER_DATABASE_ID,
+        filter: {
+            and: [
+                {
+                    property: "Date",
+                    date: {
+                        on_or_after: startDate,
+                    }
+                },
+                {
+                    property: "Date",
+                    date: {
+                        on_or_before: endDate,
+                    },
+                },
+            ]
+        },
+    })
+    return response.results; 
+}
+
 module.exports = {
     createRowInMaster,
-    getCourseProjects
+    getCourseProjects,
+    getTasksAndDeadlines
 }
