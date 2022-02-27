@@ -15,7 +15,7 @@ const { Event } = require('./Event.js');
 (async () => {
 
     // get events from schoology (7 day range default)
-    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, "2022-02-07");
+    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
 
     // get page objects with the tag "Course"
     const notionProjects = await notion.getCourseProjects();
@@ -50,7 +50,7 @@ const { Event } = require('./Event.js');
 
     }
 
-    const existingEntries = await notion.getEntries("2022-02-07")
+    const existingEntries = await notion.getEntries()
 
     // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
     entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
