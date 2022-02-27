@@ -36,10 +36,11 @@ const { Event } = require('./Event.js');
         const projectPage = notionProjects.find(project => project.url.includes(sgyCourseTitle));
 
         // create a new event object
+        // TODO: determine which events are deadlines and which are tasks
         let notionEvent = new Event(
             sgyEvents[i].id,
             sgyEvents[i].title,
-            "Deadlines",
+            "Tasks",
             sgyEvents[i].start.split(" ")[0],
             "Medium",
             projectPage.id,
