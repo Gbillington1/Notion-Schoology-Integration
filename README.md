@@ -5,12 +5,12 @@ A NodeJS project that uses the [Schoology API](https://developers.schoology.com/
 Currently imports data into a Notion database with the following schema: 
 ```js
 {
-    "title": "My Task",
-    "database": "Tasks",
-    "date": "2022-02-07",
-    "priority": "High",
-    "projectPageID": "id of notion page to link to task",
-    "status": "To Do"
+    "title": "My Task", // test
+    "database": "Tasks", // select
+    "date": "2022-02-07", // date
+    "priority": "High", // multi-select
+    "projectPageID": "id of notion page to link to task", // relation
+    "status": "To Do" // select
 }
 ```
 
