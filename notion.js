@@ -68,7 +68,7 @@ async function getCourseProjects() {
 }
 
 // gets tasks and deadlines in the master database that are within a 7 day range by default
-async function getTasksAndDeadlines(startDate = util.getISODate(), endDate = util.addDaysToDate(startDate, 7)) {
+async function getEntries(startDate = util.getISODate(), endDate = util.addDaysToDate(startDate, 7)) {
     const response = await notion.databases.query({
         database_id: process.env.NOTION_MASTER_DATABASE_ID,
         filter: {
@@ -91,8 +91,27 @@ async function getTasksAndDeadlines(startDate = util.getISODate(), endDate = uti
     return response.results; 
 }
 
+async function updateEntry(entryToUpdate, entryFromSchoology) {
+    const notionEntryID = entryToUpdate.id;
+    
+    const response = await notion.pages.update({
+        page_id: notionEntryID,
+        properties: {
+            Date: {
+                date: {
+                    start: entryFromSchoology.date,
+                },
+            },
+        },
+    })
+
+    return response;
+
+}
+
 module.exports = {
     createRowInMaster,
     getCourseProjects,
-    getTasksAndDeadlines
+    getEntries,
+    updateEntry
 }
