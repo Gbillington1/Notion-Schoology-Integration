@@ -10,71 +10,79 @@ const notion = require('./notion.js');
 const util = require('./util.js');
 const { Event } = require('./Event.js');
 
+// TODO: Add error handling
+// TODO: Less loops, faster code
 (async () => {
 
     // get events from schoology (7 day range default)
-    const sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
-
-    // get events from notion (7 day range default)
-    const notionTasksAndDeadlines = await notion.getTasksAndDeadlines()
+    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, "2022-02-07");
 
     // get page objects with the tag "Course"
     const notionProjects = await notion.getCourseProjects();
 
     // filter out events that aren't assignments
-    sgyEvents.filter((event) => {
-        return event.type === "assignment";
-    }).forEach(async (event) => {
-        
-        // check if event is already in the notion database
-        const duplicateEntry = notionTasksAndDeadlines.find(task => {
-            return (task.properties.Name.title[0].plain_text === event.title && task.properties.Date.date.start == event.start.split(" ")[0])
-        })
+    sgyEvents = sgyEvents.filter((event) => {
+        return event.type === "assignment"
+    })
 
-        // handle duplicate entries
-        // TODO: abstract this in a clean way, figure out the best way to skip and update tasks
-        // notionTasksAndDeadlines.filter((task) => {
-        //     return task.properties.Name.title[0].plain_text === event.title
-        // }).forEach(async (task) => {
-        //     const taskStartDate = task.properties.Date.date.start
-        //     const eventDate = event.start.split(" ")[0]
+    // create all pending notion entries
+    let entriesFromSchoology = [];
 
-        //     if (taskStartDate == eventDate) {
-        //         // duplicate, skip
-        //     } else if (taskStartDate != eventDate) {
-        //         // update date of task in notion using event.id
-        //     }
-        // });
+    for (let i = 0; i < sgyEvents.length; i++) {
 
-        // skip duplicates 
-        if (duplicateEntry) {
-            console.log(`Skipped creation, entry already exists: ${event.title}`);
-            return
-        }
-
-        // get title of course from from /sections/{id}
-        const sgyCourse = await schoology.getCourseSection(event.section_id);
+        const sgyCourse = await schoology.getCourseSection(sgyEvents[i].section_id);
         const sgyCourseTitle = sgyCourse.course_title.replace(/\s+/g, '-');
-
         // find page in notion that matches the schoology event course
         const projectPage = notionProjects.find(project => project.url.includes(sgyCourseTitle));
 
         // create a new event object
         let notionEvent = new Event(
-            event.id,
-            event.title,
+            sgyEvents[i].id,
+            sgyEvents[i].title,
             "Deadlines",
-            event.start.split(" ")[0],
+            sgyEvents[i].start.split(" ")[0],
             "Medium",
             projectPage.id,
             "To Do"
         );
 
+        entriesFromSchoology.push(notionEvent);
+
+    }
+
+    const existingEntries = await notion.getEntries("2022-02-07")
+
+    // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
+    entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
+
+        // find duplicate entries
+        const duplicateEntries = existingEntries.filter((entry) => {
+            return entry.properties.Name.title[0].plain_text === entriesFromSchoology[i].title
+        })
+
+        // skip or update duplicate entries
+        duplicates: for (let j = 0; j < duplicateEntries.length; j++) {
+
+            const assignmentDate = entriesFromSchoology[i].date;
+            const currentEntryDate = duplicateEntries[j].properties.Date.date.start;
+
+            if (assignmentDate == currentEntryDate) {
+                console.log(`Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
+                // skip iteration of both loops
+                continue entries;
+
+            } else if (assignmentDate != currentEntryDate) {
+                // update entry
+                notion.updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
+                console.log(`Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
+                // skip iteration of both loops
+                continue entries;
+            }
+        }
+
         // add event to new row in the master DB
-        await notion.createRowInMaster(notionEvent)
+        await notion.createRowInMaster(entriesFromSchoology[i])
+        console.log(`Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
 
-        console.log("Successfully added event to Notion: " + notionEvent.title);
-
-    })
-
+    }
 })()
