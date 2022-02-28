@@ -7,7 +7,7 @@ function getISODatetime(date) {
     }
     
     const adjustedDatetime = new Date(datetime.getTime() - (datetime.getTimezoneOffset() * 60000));
-    return adjustedDatetime.toISOString();
+    return adjustedDatetime.toISOString().replace(/([TZ])/g, " ").trim();
 } 
 
 function getISODate(date) {

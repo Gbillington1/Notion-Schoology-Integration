@@ -4,10 +4,8 @@ if (process.env.NODE_ENV === "production") {
     require('dotenv').config({ path: './.env' });
 }
 
-const { v4: uuidv4 } = require('uuid');
 const schoology = require('./schoology.js');
 const notion = require('./notion.js');
-const util = require('./util.js');
 const { Event } = require('./Event.js');
 
 // TODO: Add error handling
@@ -15,7 +13,7 @@ const { Event } = require('./Event.js');
 (async () => {
 
     // get events from schoology (7 day range default)
-    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
+    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, process.env.START_DATE);
 
     // get page objects with the tag "Course"
     const notionProjects = await notion.getCourseProjects();
