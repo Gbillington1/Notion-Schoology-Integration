@@ -129,14 +129,16 @@ async function handleCreation(entriesFromSchoology) {
             const currentEntryDate = duplicateEntries[j].properties.Date.date.start;
 
             if (assignmentDate == currentEntryDate) {
-                console.log(`\[${util.getISODatetime}\] Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
+                const timestamp = util.getISODatetime().replace(/([TZ])/g, " ").trim()
+                console.log(`[${timestamp}] Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
                 // skip iteration of both loops
                 continue entries;
 
             } else if (assignmentDate != currentEntryDate) {
                 // update entry
                 updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
-                console.log(`\[${util.getISODatetime}\] Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
+                const timestamp = util.getISODatetime().replace(/([TZ])/g, " ").trim()
+                console.log(`[${timestamp}] Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
                 // skip iteration of both loops
                 continue entries;
             }
@@ -144,7 +146,8 @@ async function handleCreation(entriesFromSchoology) {
 
         // add event to new row in the master DB
         await createRowInMaster(entriesFromSchoology[i])
-        console.log(`\[${util.getISODatetime}\] Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
+        const timestamp = util.getISODatetime().replace(/([TZ])/g, " ").trim()
+        console.log(`[${timestamp}] Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
 
     }
 
