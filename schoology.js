@@ -37,7 +37,7 @@ async function getUserEvents(userID, startDate = util.getISODate(), endDate = ut
     startDate = util.getISODate(startDate);
 
     // get the events for the user that fall in that date range
-    const data = axios.get(`https://api.schoology.com/v1/users/${userID}/events?start_date=${startDate}&end_date=${endDate}&start=0&limit=200`, {
+    const data = axios.get(`https://api.schoology.com/v1/users/${userID}/events?start_date=${startDate}&end_date=${endDate}&start=0&limit=20`, {
         headers: getHeaders()
     }).then(res => {
         return res.data.event;
