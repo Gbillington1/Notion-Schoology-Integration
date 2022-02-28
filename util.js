@@ -1,4 +1,4 @@
-function getISODate(date) {
+function getISODatetime(date) {
     let datetime;
     if (date) {
         datetime = new Date(date);
@@ -7,8 +7,12 @@ function getISODate(date) {
     }
     
     const adjustedDatetime = new Date(datetime.getTime() - (datetime.getTimezoneOffset() * 60000));
-    const newDate = adjustedDatetime.toISOString().split('T')[0];
-    return newDate;
+    return adjustedDatetime.toISOString();
+} 
+
+function getISODate(date) {
+    const ISODate = getISODatetime(date).split('T')[0];
+    return ISODate;
 }
 
 function addDaysToDate(date, daysToAdd) {
@@ -19,6 +23,7 @@ function addDaysToDate(date, daysToAdd) {
 }
 
 module.exports = {
+    getISODatetime,
     getISODate,
     addDaysToDate
 }
