@@ -109,9 +109,10 @@ async function updateEntry(entryToUpdate, entryFromSchoology) {
 
 }
 
+// handles task creation, updates, and duplicates
 async function handleCreation(entriesFromSchoology) {
 
-    const existingEntries = await getEntries();
+    const existingEntries = await getEntries(process.env.START_DATE);
 
     // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
     entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
@@ -128,22 +129,22 @@ async function handleCreation(entriesFromSchoology) {
             const currentEntryDate = duplicateEntries[j].properties.Date.date.start;
 
             if (assignmentDate == currentEntryDate) {
-                console.log(`${util.getISODatetime()}: Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
+                console.log(`[${util.getISODatetime}] Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
                 // skip iteration of both loops
                 continue entries;
 
             } else if (assignmentDate != currentEntryDate) {
                 // update entry
-                notion.updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
-                console.log(`${util.getISODatetime()}: Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
+                updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
+                console.log(`[${util.getISODatetime}] pdated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
                 // skip iteration of both loops
                 continue entries;
             }
         }
 
         // add event to new row in the master DB
-        await notion.createRowInMaster(entriesFromSchoology[i])
-        console.log(`${util.getISODatetime()}: Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
+        await createRowInMaster(entriesFromSchoology[i])
+        console.log(`[${util.getISODatetime}] Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
 
     }
 
