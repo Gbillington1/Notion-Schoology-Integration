@@ -13,7 +13,7 @@ const { Event } = require('./Event.js');
 (async () => {
 
     // get events from schoology (7 day range default)
-    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, process.env.START_DATE);
+    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
 
     // get page objects with the tag "Course"
     const notionProjects = await notion.getCourseProjects();

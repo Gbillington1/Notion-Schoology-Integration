@@ -112,7 +112,7 @@ async function updateEntry(entryToUpdate, entryFromSchoology) {
 // handles task creation, updates, and duplicates
 async function handleCreation(entriesFromSchoology) {
 
-    const existingEntries = await getEntries(process.env.START_DATE);
+    const existingEntries = await getEntries();
 
     // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
     entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
