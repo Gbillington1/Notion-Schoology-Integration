@@ -88,12 +88,12 @@ async function getEntries(startDate = util.getISODate(), endDate = util.addDaysT
             ]
         },
     })
-    return response.results; 
+    return response.results;
 }
 
 async function updateEntry(entryToUpdate, entryFromSchoology) {
     const notionEntryID = entryToUpdate.id;
-    
+
     const response = await notion.pages.update({
         page_id: notionEntryID,
         properties: {
@@ -109,9 +109,50 @@ async function updateEntry(entryToUpdate, entryFromSchoology) {
 
 }
 
+async function handleCreation(entriesFromSchoology) {
+
+    const existingEntries = await getEntries();
+
+    // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
+    entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
+
+        // find duplicate entries
+        const duplicateEntries = existingEntries.filter((entry) => {
+            return entry.properties.Name.title[0].plain_text === entriesFromSchoology[i].title
+        })
+
+        // skip or update duplicate entries
+        duplicates: for (let j = 0; j < duplicateEntries.length; j++) {
+
+            const assignmentDate = entriesFromSchoology[i].date;
+            const currentEntryDate = duplicateEntries[j].properties.Date.date.start;
+
+            if (assignmentDate == currentEntryDate) {
+                console.log(`${util.getISODatetime()}: Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
+                // skip iteration of both loops
+                continue entries;
+
+            } else if (assignmentDate != currentEntryDate) {
+                // update entry
+                notion.updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
+                console.log(`${util.getISODatetime()}: Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
+                // skip iteration of both loops
+                continue entries;
+            }
+        }
+
+        // add event to new row in the master DB
+        await notion.createRowInMaster(entriesFromSchoology[i])
+        console.log(`${util.getISODatetime()}: Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
+
+    }
+
+}
+
 module.exports = {
     createRowInMaster,
     getCourseProjects,
     getEntries,
-    updateEntry
+    updateEntry,
+    handleCreation
 }

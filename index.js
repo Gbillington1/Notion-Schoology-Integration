@@ -28,6 +28,7 @@ const { Event } = require('./Event.js');
     // create all pending notion entries
     let entriesFromSchoology = [];
 
+    // create Notion objects from each schoology event
     for (let i = 0; i < sgyEvents.length; i++) {
 
         const sgyCourse = await schoology.getCourseSection(sgyEvents[i].section_id);
@@ -51,39 +52,7 @@ const { Event } = require('./Event.js');
 
     }
 
-    const existingEntries = await notion.getEntries()
+    // TODO: refactor/clean up this implementation?
+    notion.handleCreation(entriesFromSchoology);
 
-    // check if any events are already in the master database, update duplicates if their dates are incorrect, add non duplicates
-    entries: for (let i = 0; i < entriesFromSchoology.length; i++) {
-
-        // find duplicate entries
-        const duplicateEntries = existingEntries.filter((entry) => {
-            return entry.properties.Name.title[0].plain_text === entriesFromSchoology[i].title
-        })
-
-        // skip or update duplicate entries
-        duplicates: for (let j = 0; j < duplicateEntries.length; j++) {
-
-            const assignmentDate = entriesFromSchoology[i].date;
-            const currentEntryDate = duplicateEntries[j].properties.Date.date.start;
-
-            if (assignmentDate == currentEntryDate) {
-                console.log(`Skipped creation, entry already exists: ${entriesFromSchoology[i].title}`);
-                // skip iteration of both loops
-                continue entries;
-
-            } else if (assignmentDate != currentEntryDate) {
-                // update entry
-                notion.updateEntry(duplicateEntries[j], entriesFromSchoology[i]);
-                console.log(`Updated task: ${duplicateEntries[j].properties.Name.title[0].plain_text}`);
-                // skip iteration of both loops
-                continue entries;
-            }
-        }
-
-        // add event to new row in the master DB
-        await notion.createRowInMaster(entriesFromSchoology[i])
-        console.log(`Successfully added entry to Notion: ${entriesFromSchoology[i].title}`);
-
-    }
 })()
