@@ -1,3 +1,6 @@
+const notion = require('../notion.js');
+const util = require("../util.js");
+
 class Duplicate {
 
     /**
@@ -45,6 +48,22 @@ class Duplicate {
             }
         }
         return updates;
+    }
+
+    /**
+     * Update the date of a Notion pages given an array of Duplicate objects
+     * @param {Duplicate[]} duplicates Array of Duplicate objects
+     */
+    static update(duplicates) {
+        for (let i = 0; i < duplicates.length; i++) {
+            duplicates[i].update();
+            console.info(`${util.logDatetime()} Updated date of Notion Page ${duplicates[i].notionPage.title} to ${duplicates[i].sgyEvent.date}`);
+        }
+    }
+
+    // TODO: Error handling? (what if we can't update?) 
+    update() {
+        notion.updatePage(this)
     }
 
 }
