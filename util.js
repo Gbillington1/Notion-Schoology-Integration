@@ -15,6 +15,11 @@ function getISODate(date) {
     return ISODate;
 }
 
+function logDatetime() {
+    const datetime = getISODatetime().replace(/([TZ])/g, " ").trim();
+    return `[${datetime}]`;
+}
+
 function addDaysToDate(date, daysToAdd) {
     const currentDatetime = new Date(date);
     const newDatetime = new Date(currentDatetime.setDate(currentDatetime.getDate() + daysToAdd));
@@ -25,5 +30,6 @@ function addDaysToDate(date, daysToAdd) {
 module.exports = {
     getISODatetime,
     getISODate,
+    logDatetime,
     addDaysToDate
 }
