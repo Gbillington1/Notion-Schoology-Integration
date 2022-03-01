@@ -153,10 +153,43 @@ async function handleCreation(entriesFromSchoology) {
 
 }
 
+function findDuplicates(sgyEntries, notionEntries) {
+    let duplicates = [];
+
+    for (let i = 0; i < sgyEntries.length; i++) {
+        for (let j = 0; j < notionEntries.length; j++) {
+            if (sgyEntries[i].title === notionEntries[j].properties.Name.title[0].plain_text) {
+                duplicates.push({
+                    sgyEntry: sgyEntries[i],
+                    notionEntry: notionEntries[j]
+                });
+            }
+        }
+    }
+    return duplicates;
+}
+
+function findDuplicatesToUpdate(duplicates) {
+    let updates = [];
+
+    for (let i = 0; i < duplicates.length; i++) {
+        const notionDate = duplicates[i].notionEntry.properties.Date.date.start;
+        const sgyDate = duplicates[i].sgyEntry.start.split(" ")[0];
+        console.log(sgyDate, notionDate);
+        if (sgyDate != notionDate) {
+            updates.push(duplicates[i].notionEntry);
+        }
+
+    }
+    return updates;
+}
+
 module.exports = {
     createRowInMaster,
     getCourseProjects,
     getEntries,
     updateEntry,
-    handleCreation
+    handleCreation,
+    findDuplicates,
+    findDuplicatesToUpdate
 }
