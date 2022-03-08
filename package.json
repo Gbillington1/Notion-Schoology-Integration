@@ -4,7 +4,8 @@
   "description": "Notion integration that uses the SchoologyAPI to pull calendar events into Notion",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "util": "node util.js"
   },
   "repository": {
     "type": "git",
