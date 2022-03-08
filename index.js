@@ -4,53 +4,71 @@ if (process.env.NODE_ENV === "production") {
     require('dotenv').config({ path: './.env' });
 }
 
+const util = require('./util.js');
 const schoology = require('./schoology.js');
 const notion = require('./notion.js');
-const { Event } = require('./Event.js');
+const { Event } = require('./classes/Event.js');
+const { SchoologyEvent } = require('./classes/SchoologyEvent.js');
+const { NotionPage } = require('./classes/NotionPage.js');
+const { Entry } = require('./classes/Entry.js');
 
 // TODO: Add error handling
 // TODO: Less loops, faster code
+// TODO: Make sgyEvent and notionEntry classes?
+// Make Notion and Schoology classes? extend these for everything else?
 (async () => {
 
-    // get events from schoology (7 day range default)
-    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID);
+    const scrapeStartDate = "2022-03-03";
 
-    // get page objects with the tag "Course"
-    const notionProjects = await notion.getCourseProjects();
-
-    // filter out events that aren't assignments
-    sgyEvents = sgyEvents.filter((event) => {
-        return event.type === "assignment"
+    // get events from schoology & notion (7 day range default)
+    let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, scrapeStartDate);
+    // filter is a hacky workaround for the weird date range issue with the schoology API (could be an issue with my dates/timezones)
+    sgyEvents = sgyEvents.filter(event => {
+        return event.start >= scrapeStartDate && event.start <= util.getISODate();
+    }).map((event) => {
+        return new SchoologyEvent(event);
     })
 
-    // create all pending notion entries
-    let entriesFromSchoology = [];
+    let notionPages = await notion.getEntries(scrapeStartDate);
+    notionPages = notionPages.map((entry) => {
+        return new NotionPage(entry);
+    })
 
-    // create Notion objects from each schoology event
-    for (let i = 0; i < sgyEvents.length; i++) {
+    // TODO: Check for new events using the duplicates rather than stopping the program based on duplicates
 
-        const sgyCourse = await schoology.getCourseSection(sgyEvents[i].section_id);
-        const sgyCourseTitle = sgyCourse.course_title.replace(/\s+/g, '-');
-        // find page in notion that matches the schoology event course
-        const projectPage = notionProjects.find(project => project.url.includes(sgyCourseTitle));
+    // check for duplicate entries (find?)
+    const duplicates = Entry.findDuplicates(sgyEvents, notionPages);
+    const newEntries = await Entry.findNewEntries(sgyEvents, duplicates);
 
-        // create a new event object
-        // TODO: determine which events are deadlines and which are tasks
-        let notionEvent = new Event(
-            sgyEvents[i].id,
-            sgyEvents[i].title,
-            "Tasks",
-            sgyEvents[i].start.split(" ")[0],
-            "Medium",
-            projectPage.id,
-            "To Do"
-        );
+    // finish moving code from duplicates into entries, finish finding the new events 
+    //find new events
+    //find events to update
 
-        entriesFromSchoology.push(notionEvent);
+    if (duplicates.length > 0) {
 
+        console.info(`${util.logDatetime()} Duplicate entries found, checking for entries to update...`);
+        const entriesToUpdate = Entry.findEntriesToUpdate(duplicates);
+
+        if (entriesToUpdate.length > 0) {
+            console.info(`${util.logDatetime()} Entries to update found. Updating...`);
+            Entry.update(entriesToUpdate);
+        } else {
+            console.info(`${util.logDatetime()} No entries to update found.`);
+        }
+
+    } else {
+        console.info(`${util.logDatetime()} No duplicate entries found.`);
     }
 
-    // TODO: refactor/clean up this implementation?
-    notion.handleCreation(entriesFromSchoology);
+    // check if any duplicate needs to be updated
+
+    if (newEntries.length > 0) {
+
+        console.info(`${util.logDatetime()} New entries found, creating...`);
+        Entry.createEntries(newEntries);
+
+    } else {
+        console.info(`${util.logDatetime()} No new entries found in schoology`);
+    }
 
 })()
