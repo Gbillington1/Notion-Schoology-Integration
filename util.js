@@ -5,10 +5,10 @@ function getISODatetime(date) {
     } else {
         datetime = new Date();
     }
-    
+
     const adjustedDatetime = new Date(datetime.getTime() - (datetime.getTimezoneOffset() * 60000));
     return adjustedDatetime.toISOString();
-} 
+}
 
 function getISODate(date) {
     const ISODate = getISODatetime(date).split('T')[0];
@@ -27,9 +27,17 @@ function addDaysToDate(date, daysToAdd) {
     return newDate;
 }
 
+function subtractDaysFromDate(date, daysToSubtract) {
+    const currentDatetime = new Date(date);
+    const newDatetime = new Date(currentDatetime.setDate(currentDatetime.getDate() - daysToSubtract));
+    const newDate = newDatetime.toISOString().split('T')[0];
+    return newDate;
+}
+
 module.exports = {
     getISODatetime,
     getISODate,
     logDatetime,
-    addDaysToDate
+    addDaysToDate,
+    subtractDaysFromDate
 }
