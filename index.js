@@ -22,8 +22,8 @@ const { Entry } = require('./classes/Entry.js');
 
     // get events from schoology & notion (7 day range default)
     let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, scrapeStartDate);
-    // filter is a hacky workaround for the weird date range issue with the schoology API (could be an issue with my dates/timezones)
     sgyEvents = sgyEvents.filter(event => {
+        // workaround for the weird date range issue with the schoology API (could be an issue with my dates/timezones)
         return event.start >= scrapeStartDate && event.start <= util.getISODate();
     }).map((event) => {
         return new SchoologyEvent(event);
@@ -34,21 +34,18 @@ const { Entry } = require('./classes/Entry.js');
         return new NotionPage(entry);
     })
 
-    // TODO: Check for new events using the duplicates rather than stopping the program based on duplicates
-
-    // check for duplicate entries (find?)
+    // get new and duplicate entries
     const duplicates = Entry.findDuplicates(sgyEvents, notionPages);
     const newEntries = await Entry.findNewEntries(sgyEvents, duplicates);
 
-    // finish moving code from duplicates into entries, finish finding the new events 
-    //find new events
-    //find events to update
 
+    // handle duplicates
     if (duplicates.length > 0) {
 
         console.info(`${util.logDatetime()} Duplicate entries found, checking for entries to update...`);
         const entriesToUpdate = Entry.findEntriesToUpdate(duplicates);
 
+        // update duplicates that were changed
         if (entriesToUpdate.length > 0) {
             console.info(`${util.logDatetime()} Entries to update found. Updating...`);
             Entry.update(entriesToUpdate);
@@ -62,6 +59,7 @@ const { Entry } = require('./classes/Entry.js');
 
     // check if any duplicate needs to be updated
 
+    // add new entries
     if (newEntries.length > 0) {
 
         console.info(`${util.logDatetime()} New entries found, creating...`);
