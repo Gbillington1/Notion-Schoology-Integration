@@ -34,6 +34,25 @@ async function getEntries(startDate = util.getISODate(), endDate = util.addDaysT
 }
 
 /**
+ * Get a list of all the courses in the projects database
+ * @returns {{Notion Page Resp}[]} Array of Notion pages that have the tag "Course" from the Notion API
+ */
+async function getCourseProjects() {
+    // get page IDs from Projects db
+    const response = await notion.databases.query({
+        database_id: process.env.NOTION_PROJECTS_DATABASE_ID,
+        filter: {
+            property: "Tags",
+            multi_select: {
+                contains: "Course",
+            },
+        },
+    })
+    console.log(response)
+    return response.results;
+}
+
+/**
  * Get a list of databases that the integration has access to
  * @returns {Promise<{Notion Database Resp}[]>} Array of Notion databases that are shared with the integration
  */
@@ -48,5 +67,6 @@ function getDatabases() {
 
 module.exports = {
     getEntries,
+    getCourseProjects,
     getDatabases
 }
