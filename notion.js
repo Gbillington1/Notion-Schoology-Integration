@@ -48,7 +48,6 @@ async function getCourseProjects() {
             },
         },
     })
-    console.log(response)
     return response.results;
 }
 
