@@ -7,7 +7,6 @@ if (process.env.NODE_ENV === "production") {
 const util = require('./util.js');
 const schoology = require('./schoology.js');
 const notion = require('./notion.js');
-const { Event } = require('./classes/Event.js');
 const { SchoologyEvent } = require('./classes/SchoologyEvent.js');
 const { NotionPage } = require('./classes/NotionPage.js');
 const { Entry } = require('./classes/Entry.js');
