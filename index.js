@@ -17,13 +17,13 @@ const { Entry } = require('./classes/Entry.js');
 // Make Notion and Schoology classes? extend these for everything else?
 (async () => {
 
-    const scrapeStartDate = "2022-03-03";
+    const scrapeStartDate = util.getISODate();
 
     // get events from schoology & notion (7 day range default)
     let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, scrapeStartDate);
     sgyEvents = sgyEvents.filter(event => {
         // workaround for the weird date range issue with the schoology API (could be an issue with my dates/timezones)
-        return event.start >= scrapeStartDate && event.start <= util.getISODate();
+        return event.start >= scrapeStartDate && event.start <= util.addDaysToDate(scrapeStartDate, 7);
     }).map((event) => {
         return new SchoologyEvent(event);
     })
