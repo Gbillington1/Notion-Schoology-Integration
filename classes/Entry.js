@@ -1,4 +1,5 @@
 const { NewNotionPage } = require('./NewNotionPage.js');
+const { NotionPage } = require('./NotionPage.js')
 const { Client } = require('@notionhq/client');
 const util = require("../util.js");
 
@@ -81,12 +82,51 @@ class Entry {
                 if (response.object === "page") {
                     console.info(`${util.logDatetime()} Created Notion Page ${newEntries[i].notionPage.title}`);
                 }
-                
+
             }).catch(error => {
                 console.info(`${util.logDatetime()} Error creating Notion Page ${newEntries[i].notionPage.title}`);
-                throw new Error(error);   
+                throw new Error(error);
             })
 
+        }
+    }
+
+    /**
+     * Update the date of a Notion pages given an array of Entry objects
+     * @param {Entry[]} updates Array of Entry objects
+     */
+    static update(updates) {
+        for (let i = 0; i < updates.length; i++) {
+
+            updates[i].updateDate().then(response => {
+                if (response.object === "page") {
+                    console.info(`${util.logDatetime()} Updated date of Notion Page ${updates[i].notionPage.title} from ${updates[i].notionPage.date} to ${updates[i].sgyEvent.date}`);
+                }
+            }).catch(error => {
+                console.info(`${util.logDatetime()} Error updating date of Notion Page ${updates[i].notionPage.title}`);
+                throw new Error(error);
+            });
+        }
+    }
+
+    /**
+     * Update the date of a Notion page
+     * @returns 
+     */
+    async updateDate() {
+        if (this.notionPage instanceof NotionPage) {
+            return notion.pages.update({
+                page_id: this.notionPage.id,
+                properties: {
+                    Date: {
+                        date: {
+                            start: this.sgyEvent.date,
+                        },
+                    },
+                },
+            })
+        } else {
+            throw new Error("Notion Page is not an instance of NotionPage");
         }
     }
 
