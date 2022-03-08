@@ -1,15 +1,26 @@
-class NotionPage {
+const { NewNotionPage } = require('./NewNotionPage.js');
+const { Client } = require('@notionhq/client');
+const util = require("../util.js");
+
+const notion = new Client({
+    auth: process.env.NOTION_TOKEN
+});
+
+class NotionPage extends NewNotionPage {
     constructor(notionPage) {
-        this.id = notionPage.id;
-        this.databaseID = notionPage.parent.database_id;
-        this.title = notionPage.properties.Name.title[0].text.content;
-        this.database = notionPage.properties.Database.select.name || "Tasks";
-        this.date = notionPage.properties.Date.date.start;
-        this.priority = notionPage.properties.Priority.multi_select[0].name || "Medium";
-        this.status = notionPage.properties.Status.select.name || "To Do";
-        this.projectRelationID = notionPage.properties.Project.relation[0].id;
-        this.notes = (notionPage.properties.Notes.rich_text[0]) ? notionPage.properties.Notes.rich_text[0].plain_text : "";
+        super({
+            title: notionPage.properties.Name.title[0].text.content,
+            date: notionPage.properties.Date.date.start,
+            database: notionPage.properties.Database.select.name,
+            priority: notionPage.properties.Priority.multi_select[0].name,
+            status: notionPage.properties.Status.select.name,
+            projectRelationID: notionPage.properties.Project.relation[0].id,
+            notes: (notionPage.properties.Notes.rich_text[0]) ? notionPage.properties.Notes.rich_text[0].plain_text : ""
+        })
+        this.id = notionPage.id || null;
+        this.databaseID = notionPage.parent.database_id || null;
     }
+
 }
 
 module.exports = {
