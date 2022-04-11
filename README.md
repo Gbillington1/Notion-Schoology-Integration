@@ -5,7 +5,7 @@ A NodeJS project that uses the [Schoology API](https://developers.schoology.com/
 Currently imports data into a Notion database with the following schema: 
 ```js
 {
-    "title": "My Task", // test
+    "title": "My Task", // text
     "database": "Tasks", // select
     "date": "2022-02-07", // date
     "priority": "High", // multi-select
