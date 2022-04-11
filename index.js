@@ -21,6 +21,7 @@ const { Entry } = require('./classes/Entry.js');
 
     // get events from schoology & notion (7 day range default)
     let sgyEvents = await schoology.getUserEvents(process.env.SCHOOLOGY_USER_ID, scrapeStartDate);
+    
     sgyEvents = sgyEvents.filter(event => {
         // workaround for the weird date range issue with the schoology API (could be an issue with my dates/timezones)
         return event.start >= scrapeStartDate && event.start <= util.addDaysToDate(scrapeStartDate, 7);
